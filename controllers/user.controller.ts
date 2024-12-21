@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { User } from "../models/User";
 import { generateRandomCode, generateToken, hashPassword, sendEmail } from "../helper/util";
-import { error } from "console";
 import { compare } from "bcrypt";
 import jwt from 'jsonwebtoken'
+
 
 
 export async function register(req: Request, res: Response) {
@@ -20,7 +20,7 @@ export async function register(req: Request, res: Response) {
 
         await newUser.save()
 
-        await sendEmail(newUser.email, `Hola, ${newUser.name}`, `Bienvenid@! Confirme su cuenta a traves del siguiente enlace <a href="http://localhost:5173/auth/confirm/${newUser.token}">Confirmar cuenta</a> ingresando el código ${newUser.code}`)
+        await sendEmail(newUser.email, `Hola, ${newUser.name}`, `Bienvenid@! Confirme su cuenta a traves del siguiente enlace <a href="${process.env.FRONTEND_URL}/auth/confirm/${newUser.token}">Confirmar cuenta</a> ingresando el código ${newUser.code}`)
 
         res.json({
             message: "Registrado correctamente"
@@ -126,7 +126,7 @@ export async function forgetPassword(req: Request, res: Response) {
 
         await UserPassword.save()
 
-        await sendEmail(req.body.email, 'Reestablecer contraseña','Haga click aquí para reestablecer su contraseña <a href="/">Reestablecer</a>')
+        await sendEmail(req.body.email,UserPassword.name,`Reestablecer contraseña, Haga click aquí para reestablecer su contraseña <a href="${process.env.FRONTEND_URL}/auth/reset/${UserPassword.token}">Reestablecer</a>`) 
         
         res.json({
             message:"Le enviamos un correo para restablecer su contraseña"
@@ -143,6 +143,8 @@ export async function forgetPassword(req: Request, res: Response) {
 export async function confirmedPassword(req: Request, res: Response) {
     try {
 
+        console.log(req.params.token);
+        
         const password = req.body.password
         const findUser = await User.findOne({token: req.params.token})
 

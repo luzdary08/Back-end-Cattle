@@ -1,6 +1,6 @@
 import { model, Schema, Document } from "mongoose";
 
-interface UserType extends Document{
+export interface UserType extends Document{
     name:string,
     token:string,
     password:string,
@@ -18,7 +18,8 @@ const UserSchema = new Schema({
     rol: String,
     code:Number,
     email: {
-        type: String
+        type: String,
+        unique: true,
     },
     confirm: {
         type: Boolean,
